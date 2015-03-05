@@ -17,6 +17,8 @@ func init() {
 }
 
 func main() {
+	log.Printf("go # %v", runtime.NumGoroutine())
+
 	var profilefilename = flag.String("pfilename", "", "profile filename")
 	flag.Parse()
 	args := flag.Args()
@@ -33,6 +35,7 @@ func main() {
 	sttime := time.Now()
 	doMain(args)
 	fmt.Printf("%v\n", time.Now().Sub(sttime))
+	log.Printf("go # %v", runtime.NumGoroutine())
 }
 
 func doMain(args []string) {
