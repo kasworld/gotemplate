@@ -27,7 +27,7 @@ func main() {
 	if *cpuprofilename != "" {
 		f, err := os.Create(*cpuprofilename)
 		if err != nil {
-			log.Fatalf("profile %v", err)
+			log.Fatalf("cpu profile %v", err)
 		}
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
@@ -35,7 +35,7 @@ func main() {
 	if *memprofilename != "" {
 		f, err := os.Create(*memprofilename)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("mem profile %v", err)
 		}
 		pprof.WriteHeapProfile(f)
 		f.Close()
