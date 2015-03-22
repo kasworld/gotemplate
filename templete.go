@@ -19,17 +19,27 @@ func init() {
 func main() {
 	log.Printf("go # %v", runtime.NumGoroutine())
 
-	var profilefilename = flag.String("pfilename", "", "profile filename")
+	var cpuprofilename = flag.String("cpuprofilename", "", "cpu profile filename")
+	var memprofilename = flag.String("memprofilename", "", "memory profile filename")
 	flag.Parse()
 	args := flag.Args()
 
-	if *profilefilename != "" {
-		f, err := os.Create(*profilefilename)
+	if *cpuprofilename != "" {
+		f, err := os.Create(*cpuprofilename)
 		if err != nil {
 			log.Fatalf("profile %v", err)
 		}
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
+	}
+	if *memprofilename != "" {
+		f, err := os.Create(*memprofilename)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.WriteHeapProfile(f)
+		f.Close()
+		return
 	}
 
 	sttime := time.Now()
