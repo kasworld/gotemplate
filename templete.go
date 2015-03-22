@@ -16,6 +16,24 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
+func writeHeapProfile(filename string) {
+	f, err := os.Create(filename)
+	if err != nil {
+		log.Fatalf("mem profile %v", err)
+	}
+	pprof.WriteHeapProfile(f)
+	f.Close()
+}
+
+func startCPUProfile(filename string) func() {
+	f, err := os.Create(filename)
+	if err != nil {
+		log.Fatalf("cpu profile %v", err)
+	}
+	pprof.StartCPUProfile(f)
+	return pprof.StopCPUProfile
+}
+
 func main() {
 	log.Printf("go # %v", runtime.NumGoroutine())
 
@@ -25,27 +43,18 @@ func main() {
 	args := flag.Args()
 
 	if *cpuprofilename != "" {
-		f, err := os.Create(*cpuprofilename)
-		if err != nil {
-			log.Fatalf("cpu profile %v", err)
-		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-	}
-	if *memprofilename != "" {
-		f, err := os.Create(*memprofilename)
-		if err != nil {
-			log.Fatalf("mem profile %v", err)
-		}
-		pprof.WriteHeapProfile(f)
-		f.Close()
-		return
+		fn := startCPUProfile(*cpuprofilename)
+		defer fn()
 	}
 
 	sttime := time.Now()
 	doMain(args)
 	fmt.Printf("%v\n", time.Now().Sub(sttime))
 	log.Printf("go # %v", runtime.NumGoroutine())
+
+	if *memprofilename != "" {
+		writeHeapProfile(*memprofilename)
+	}
 }
 
 func doMain(args []string) {
